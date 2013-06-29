@@ -71,7 +71,7 @@ def process_folder(folder_in, subdir, operation, spec):
 
 RECIPES = {
 	'screen': {
-		'operation': resize, 'spec': '5000000@', 'subdir': 'screen'
+		'operation': resize, 'spec': '5000000@', 'subdir': '.screen'
 	}
 }
 
