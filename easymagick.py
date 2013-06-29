@@ -28,7 +28,7 @@ def resize(src, dest, spec):
 	print retcode
 
 
-def get_files_in_folder(folder):
+def get_files_in_folder(folder, skip_existing=True):
 	"""
 	Get a list of filenames in a folder
 	"""
@@ -38,11 +38,14 @@ def get_files_in_folder(folder):
 		ext = file[-3:].upper()
 		if os.path.isfile(fullpath):
 			if ext in PICTURE_FORMATS:
-				files.append(file)
+				if os.path.exists(fullpath)==False or skip_existing==False:
+					files.append(file)
+				else:
+					print 'Skipping: ', fullpath
 	return files
 
 
-def apply_batch_operation(folder_in, folder_out, operation, spec):
+def apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing=True):
 	"""
 	Applies an operation as a batch to all files in a folder
 	and stores the result in another folder
@@ -53,7 +56,7 @@ def apply_batch_operation(folder_in, folder_out, operation, spec):
 		os.makedirs(folder_out)
 
 	# Processing the files
-	for file in get_files_in_folder(folder_in):
+	for file in get_files_in_folder(folder_in, skip_existing):
 		src = os.path.join(folder_in, file)
 		dest = os.path.join(folder_out, file)
 		print 'Processing %s -> %s' % (src, dest)
