@@ -27,6 +27,17 @@ def resize(src, dest, spec):
 	retcode = subprocess.call(' '.join(cmd), shell=True)
 	#print retcode
 
+def get_folder_tree(root_folder):
+	"""
+	Returns a recursive list of all the folders in a root folder
+	while skipping folders that start with a '.'
+	"""
+	folders=[]
+	for root, sub_folders, files in os.walk(root_folder):
+		basename = os.path.basename(root)
+		if not basename.startswith('.'):
+			folders.append(root)
+	return folders 
 
 def get_files_in_folder(folder):
 	"""
@@ -40,7 +51,6 @@ def get_files_in_folder(folder):
 			if ext in PICTURE_FORMATS:
 				files.append(file)
 	return files
-
 
 def apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing=True):
 	"""
@@ -62,8 +72,6 @@ def apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing=
 			operation(src, dest, spec)
 		else:
 			print 'Skipping: ', src
-		
-
 
 def process_folder(folder_in, subdir, operation, spec, skip_existing=True):
 	"""
@@ -73,10 +81,22 @@ def process_folder(folder_in, subdir, operation, spec, skip_existing=True):
 	folder_out = os.path.join(folder_in, subdir)
 	apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing)
 
+def process_folder_recursive(folder_in, subdir, operation, spec, skip_existing=True):
+	"""
+	Applies an operation as a batch to all files and sub-folders
+	in a folder and stores the result in a sub-folder in each folder
+	"""
+	all_folders = get_folder_tree(folder_in)
+	for folder in all_folders:
+		process_folder(folder, subdir, operation, spec, skip_existing)
+
 
 RECIPES = {
 	'screen': {
 		'operation': resize, 'spec': '5000000@', 'subdir': '.screen'
+	},
+	'thumbnail': {
+		'operation': resize, 'spec': '500000@', 'subdir': '.thumbnails'
 	}
 }
 
@@ -92,6 +112,6 @@ if __name__=='__main__':
 
 	if args.recipe in RECIPES:
 		recipe_spec = RECIPES[args.recipe]
-		process_folder(args.folder, recipe_spec['subdir'], recipe_spec['operation'], recipe_spec['spec'], not args.overwrite)
+		process_folder_recursive(args.folder, recipe_spec['subdir'], recipe_spec['operation'], recipe_spec['spec'], not args.overwrite)
 	else:
 		print 'ERROR: Unknown recipe "%s"' % args.recipe
