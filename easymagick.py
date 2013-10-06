@@ -18,11 +18,11 @@ def path_to_convert():
 		return 'convert'
 
 
-def resize(src, dest, spec):
+def resize(src, dest, spec, quality=100):
 	"""
 	Wrapper for resising a picture
 	"""
-	cmd = [path_to_convert(), '"%s"'%src, '-resize %s'%spec, '"%s"'%dest]
+	cmd = [path_to_convert(), '"%s"'%src, '-resize %s'%spec, '-quality %s'%quality, '"%s"'%dest]
 	#print ' '.join(cmd)
 	retcode = subprocess.call(' '.join(cmd), shell=True)
 	#print retcode
@@ -52,7 +52,7 @@ def get_files_in_folder(folder):
 				files.append(file)
 	return files
 
-def apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing=True):
+def apply_batch_operation(folder_in, folder_out, operation, spec, quality, skip_existing=True):
 	"""
 	Applies an operation as a batch to all files in a folder
 	and stores the result in another folder
@@ -69,34 +69,37 @@ def apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing=
 
 		if os.path.exists(dest)==False or skip_existing==False:
 			print 'Processing %s -> %s' % (src, dest)
-			operation(src, dest, spec)
+			operation(src, dest, spec, quality)
 		else:
 			print 'Skipping: ', src
 
-def process_folder(folder_in, subdir, operation, spec, skip_existing=True):
+def process_folder(folder_in, subdir, operation, spec, quality, skip_existing=True):
 	"""
 	Applies an operation as a batch to all files in a folder 
 	and stores the result in a subdirectory in that folder
 	"""
 	folder_out = os.path.join(folder_in, subdir)
-	apply_batch_operation(folder_in, folder_out, operation, spec, skip_existing)
+	apply_batch_operation(folder_in, folder_out, operation, spec, quality, skip_existing)
 
-def process_folder_recursive(folder_in, subdir, operation, spec, skip_existing=True):
+def process_folder_recursive(folder_in, subdir, operation, spec, quality, skip_existing=True):
 	"""
 	Applies an operation as a batch to all files and sub-folders
 	in a folder and stores the result in a sub-folder in each folder
 	"""
 	all_folders = get_folder_tree(folder_in)
 	for folder in all_folders:
-		process_folder(folder, subdir, operation, spec, skip_existing)
+		process_folder(folder, subdir, operation, spec, quality, skip_existing)
 
 
 RECIPES = {
 	'screen': {
-		'operation': resize, 'spec': '5000000@', 'subdir': '.screen'
+		'operation': resize, 'spec': '5000000@', 'subdir': '.screen', 'quality':100
+	},
+	'web': {
+		'operation': resize, 'spec': '3000000@', 'subdir': '.web', 'quality':60
 	},
 	'thumbnail': {
-		'operation': resize, 'spec': '500000@', 'subdir': '.thumbnails'
+		'operation': resize, 'spec': '500000@', 'subdir': '.thumbnails', 'quality':100
 	}
 }
 
@@ -112,6 +115,7 @@ if __name__=='__main__':
 
 	if args.recipe in RECIPES:
 		recipe_spec = RECIPES[args.recipe]
-		process_folder_recursive(args.folder, recipe_spec['subdir'], recipe_spec['operation'], recipe_spec['spec'], not args.overwrite)
+		process_folder_recursive(args.folder, recipe_spec['subdir'], recipe_spec['operation'], recipe_spec['spec'],
+							     recipe_spec['quality'], not args.overwrite)
 	else:
 		print 'ERROR: Unknown recipe "%s"' % args.recipe
