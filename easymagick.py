@@ -7,7 +7,7 @@ PICTURE_FORMATS = ['JPG']
 
 
 def path_to_convert():
-    """ Returns the full path to the convert commant. Neet to find a
+    """ Returns the full path to the convert command. Need to find a
         better way of doing this.
     """
     if sys.platform == 'darwin':
@@ -19,7 +19,7 @@ def path_to_convert():
 
 
 def resize(src, dest, spec, quality=100):
-    """ Wrapper for resising a picture
+    """ Wrapper for resizing a picture
     """
     cmd = [path_to_convert(), '"%s"' % src, '-resize %s' % spec, '-quality %s' % quality, '"%s"' % dest]
     #print ' '.join(cmd)
@@ -40,7 +40,7 @@ def get_folder_tree(root_folder):
 
 
 def get_files_in_folder(folder):
-    """ Get a list of filenames in a folder
+    """ Get a list of file names in a folder
     """
     files = []
     for file in os.listdir(folder):
@@ -105,7 +105,7 @@ RECIPES = {
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Batch processor for photographs.')
-    parser.add_argument('recipe', help='Batch processing recepies to use')
+    parser.add_argument('recipe', help='Batch processing recipes to use')
     parser.add_argument('folder', help='Full path to folder to apply to')
     parser.add_argument('-o', '--overwrite', action='store_true', default=False, help='Overwrite existing files')
 
