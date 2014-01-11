@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import procutils
 import subprocess
 
 PICTURE_FORMATS = ['JPG']
@@ -10,12 +11,14 @@ def path_to_convert():
     """ Returns the full path to the convert command. Need to find a
         better way of doing this.
     """
-    if sys.platform == 'darwin':
-        # For Mac, programs on path are not available, hence have to give explicit paths
-        return '/opt/ImageMagick/bin/convert'
-    elif sys.platform == 'win32':
-        # For windows, executable on the path seems to work just like thats
-        return 'convert'
+    convert_path = procutils.which('convert')
+    if len(convert_path)>0:
+        return convert_path[0]
+    else:
+        print
+        print 'ERROR: Could not find the "convert" utility on PATH'
+        print 'Please install ImageMagick and make sure it\'s "bin" folder is included in the PATH environment variable'
+        sys.exit(1)
 
 
 def resize(src, dest, spec, quality=100):
