@@ -11,9 +11,12 @@ def path_to_convert():
     """ Returns the full path to the convert command. Need to find a
         better way of doing this.
     """
-    convert_path = procutils.which('convert')
-    if len(convert_path)>0:
-        return convert_path[0]
+    convert_paths = procutils.which('convert')
+    if len(convert_paths) > 0:
+        convert_path = convert_paths[0]
+        if ' ' in convert_path:
+            convert_path = '"%s"' % convert_path
+            return convert_path
     else:
         print
         print 'ERROR: Could not find the "convert" utility on PATH'
@@ -25,7 +28,7 @@ def resize(src, dest, spec, quality=100):
     """ Wrapper for resizing a picture
     """
     cmd = [path_to_convert(), '"%s"' % src, '-resize %s' % spec, '-quality %s' % quality, '"%s"' % dest]
-    #print ' '.join(cmd)
+    print ' '.join(cmd)
     retcode = subprocess.call(' '.join(cmd), shell=True)
     return retcode
 
